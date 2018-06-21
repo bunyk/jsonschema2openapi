@@ -84,13 +84,13 @@ func replaceRefs(jsonData interface{}, old, new string) interface{} {
 //		{
 //			"if": { "properties": { "PROPERTY": { "enum": [ "CASE1" ] } } },
 //			"then": { "$ref": "REF1" }
-//			"else": { "properties": { "PROPERTY": { "enum": [ "CASE1" ] } } },
+//			"else": { "properties": { "PROPERTY": { "enum": [ "CASE1" ] } } }
 //		},
 //		{
 //			"if": { "properties": { "PROPERTY": { "enum": [ "CASE2" ] } } },
 //			"then": { "$ref": "REF2" }
-//			"else": { "properties": { "PROPERTY": { "enum": [ "CASE2" ] } } },
-//		},
+//			"else": { "properties": { "PROPERTY": { "enum": [ "CASE2" ] } } }
+//		}
 //	]
 //
 // with
@@ -233,8 +233,8 @@ func reflist(refs []string) []map[string]string {
 	return res
 }
 
-// CasesResult is struct to hold data from cases pattern in JSON
-type CasesResult struct {
+// casesResult is struct to hold data from cases pattern in JSON
+type casesResult struct {
 	Property string
 	Cases    []string
 	Refs     []string
@@ -242,7 +242,7 @@ type CasesResult struct {
 
 // getCases checks if JSON matches oneOf pattern described in comment for discriminate
 // Returns ok true in case of match, name of property to discriminate by, and list of cases and respective references
-func getCases(jsonData interface{}) (ok bool, res CasesResult) {
+func getCases(jsonData interface{}) (ok bool, res casesResult) {
 	obj, ok := jsonData.(map[string]interface{})
 	if !ok {
 		return

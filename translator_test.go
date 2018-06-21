@@ -2,6 +2,7 @@ package jsonschema2openapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/bunyk/jsonschema2openapi/fixtures"
@@ -139,7 +140,7 @@ var _ = Describe("getCases", func() {
 		Expect(err).To(BeNil())
 		ok, cases := getCases(jsonData)
 		Expect(ok).To(BeTrue())
-		Expect(cases).To(Equal(CasesResult{
+		Expect(cases).To(Equal(casesResult{
 			Property: "PROPERTY",
 			Cases:    []string{"CASE1", "CASE2"},
 			Refs:     []string{"REF1", "REF2"},
@@ -156,4 +157,205 @@ var _ = Describe("getCases", func() {
 func TestSuite(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "All Tests Suite")
+}
+
+func ExamplePutSchemaIntoOpenAPI() {
+	fullAPI, _ := PutSchemaIntoOpenAPI(
+		`{
+		"definitions": {
+			"Data": {
+				"oneOf": [
+					{
+						"if": { "properties": { "type": { "enum": [ "stringornull" ] } } },
+						"then": { "properties": {"payload": {"$ref": "#/definitions/Payload1" } } },
+						"else": { "properties": { "type": { "enum": [ "stringornull" ] } } }
+					},
+					{
+						"if": { "properties": { "type": { "enum": [ "int" ] } } },
+						"then": { "properties": {"payload": {"$ref": "#/definitions/Payload2" } } },
+						"else": { "properties": { "type": { "enum": [ "int" ] } } }
+					}
+				]
+			},
+			"Payload1": {
+				"oneOf": [
+					{ "type": "string" },
+					{ "type": "null" }
+				]
+			}, 
+			"Payload2": {
+				"type": "int"
+			}
+		}
+	}`, `{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "My API"
+  },
+  "servers": [],
+  "paths": {
+    "/data": {
+      "get": {
+        "summary": "Get data",
+        "responses": {
+          "200": {
+            "description": "Data response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Data"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+    }
+  }
+}`)
+	fmt.Println(fullAPI)
+	// Output:
+	// {
+	//  "components": {
+	//   "schemas": {
+	//    "Data": {
+	//     "oneOf": [
+	//      {
+	//       "anyOf": [
+	//        {
+	//         "allOf": [
+	//          {
+	//           "properties": {
+	//            "type": {
+	//             "enum": [
+	//              "stringornull"
+	//             ]
+	//            }
+	//           }
+	//          },
+	//          {
+	//           "properties": {
+	//            "payload": {
+	//             "$ref": "#/components/schemas/Payload1"
+	//            }
+	//           }
+	//          }
+	//         ]
+	//        },
+	//        {
+	//         "allOf": [
+	//          {
+	//           "not": {
+	//            "properties": {
+	//             "type": {
+	//              "enum": [
+	//               "stringornull"
+	//              ]
+	//             }
+	//            }
+	//           }
+	//          },
+	//          {
+	//           "properties": {
+	//            "type": {
+	//             "enum": [
+	//              "stringornull"
+	//             ]
+	//            }
+	//           }
+	//          }
+	//         ]
+	//        }
+	//       ]
+	//      },
+	//      {
+	//       "anyOf": [
+	//        {
+	//         "allOf": [
+	//          {
+	//           "properties": {
+	//            "type": {
+	//             "enum": [
+	//              "int"
+	//             ]
+	//            }
+	//           }
+	//          },
+	//          {
+	//           "properties": {
+	//            "payload": {
+	//             "$ref": "#/components/schemas/Payload2"
+	//            }
+	//           }
+	//          }
+	//         ]
+	//        },
+	//        {
+	//         "allOf": [
+	//          {
+	//           "not": {
+	//            "properties": {
+	//             "type": {
+	//              "enum": [
+	//               "int"
+	//              ]
+	//             }
+	//            }
+	//           }
+	//          },
+	//          {
+	//           "properties": {
+	//            "type": {
+	//             "enum": [
+	//              "int"
+	//             ]
+	//            }
+	//           }
+	//          }
+	//         ]
+	//        }
+	//       ]
+	//      }
+	//     ]
+	//    },
+	//    "Payload1": {
+	//     "nullable": true,
+	//     "type": "string"
+	//    },
+	//    "Payload2": {
+	//     "type": "int"
+	//    }
+	//   }
+	//  },
+	//  "info": {
+	//   "title": "My API",
+	//   "version": "1.0.0"
+	//  },
+	//  "openapi": "3.0.0",
+	//  "paths": {
+	//   "/data": {
+	//    "get": {
+	//     "responses": {
+	//      "200": {
+	//       "content": {
+	//        "application/json": {
+	//         "schema": {
+	//          "$ref": "#/components/schemas/Data"
+	//         }
+	//        }
+	//       },
+	//       "description": "Data response"
+	//      }
+	//     },
+	//     "summary": "Get data"
+	//    }
+	//   }
+	//  },
+	//  "servers": []
+	// }
 }
