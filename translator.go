@@ -32,8 +32,8 @@ func PutSchemaIntoOpenAPI(schemaJSON, openAPITemplate string) (string, error) {
 	}
 
 	// Now add definitions from our schema to that OpenAPI
-	schema4OpenAPI := schema["definitons"].(map[string]interface{})
-	for k, v := range TranslateDefinitions(schema["definitons"]) {
+	schema4OpenAPI := schema["definitions"].(map[string]interface{})
+	for k, v := range TranslateDefinitions(schema4OpenAPI) {
 		schemas[k] = v
 	}
 
