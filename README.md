@@ -7,7 +7,7 @@ PutSchemaIntoOpenAPI will put `definitions` from provided JSON Schema into your 
 * Cleanup any `$schema` or other keys from JSON Reference objects
 * Any reference to `#/definitions` will lead to `#/component/schemas`
 * `"oneOf": [{"type": X}, {"type": "null"}]` will be replaced with `"type": X, "nullable": true`
-* TODO: finish doc
+* `oneOf` with multiple `if`s inside around one property with different values, will be transformed to oneOf with discriminate, see [here](https://github.com/bunyk/jsonschema2openapi/blob/master/translator.go#L81)
 
 ## Installation
 
@@ -31,7 +31,5 @@ if err == nil {
 } else {
     fmt.Println(err.Error())
 }
-
-See more complete example in docs: https://godoc.org/github.com/bunyk/jsonschema2openapi#PutSchemaIntoOpenAPI
-
 ```
+See more complete example in docs: https://godoc.org/github.com/bunyk/jsonschema2openapi#PutSchemaIntoOpenAPI
